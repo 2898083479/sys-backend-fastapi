@@ -2,7 +2,7 @@ import abc
 
 from fastapi import Request
 from jenkins import TimeoutException
-from config.setting import get_setting
+from app.config.setting import get_setting
 
 from app.response import ResponseModel, ResponseStatusCodeEnum, get_response_message
 

@@ -8,7 +8,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from starlette.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
+from app.config.setting import get_setting
 from app.response import ResponseModel, ResponseStatusCodeEnum, get_response_message
+from motor.motor_asyncio import AsyncIOMotorClient # type: ignore
+from beanie import init_beanie
 
 
 def create_app():
@@ -42,6 +45,24 @@ async def register_routers(app: FastAPI):
     # app.include_router()
     app.include_router(account_router)
     return True
+
+async def initialize_mongodb_client():
+    return AsyncIOMotorClient(
+        host=get_setting().MONGODB_URI,
+        port=get_setting().MONGODB_PORT,
+        username=get_setting().MONGODB_USERNAME,
+        password=get_setting().MONGODB_PASSWORD
+        
+    )
+    
+async def init_db(mongo_client: AsyncIOMotorClient):
+    # 導入模型
+    await init_beanie(
+        database=getattr(mongo_client, get_setting().MONGODB_DB),
+        document_models=[
+            # *load_models_class(model name)
+        ]
+    )
 
 
 def register_http_exception_handlers(app: FastAPI):
