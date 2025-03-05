@@ -1,8 +1,10 @@
 import abc
 
+import jwt
 from fastapi import Request
 from jenkins import TimeoutException
 from app.config.setting import get_settings
+from app.models.account.admin import AdminModel
 
 from app.response import ResponseModel, ResponseStatusCodeEnum, get_response_message
 
@@ -92,8 +94,34 @@ class BaseViewModel:
         self.data = data
         raise ViewModelRequestException(message=data)
 
+    def not_found(self, data: str | dict | list):
+        self.code = ResponseStatusCodeEnum.NOT_FOUND.value
+        self.message = get_response_message(ResponseStatusCodeEnum.NOT_FOUND)
+        self.data = data
+        raise ViewModelRequestException(message=data)
+
     def request_timeout(self, msg: str):
         self.code = ResponseStatusCodeEnum.REQUEST_TIMEOUT.value
         self.message = get_response_message(ResponseStatusCodeEnum.REQUEST_TIMEOUT)
         self.data = msg
         raise ViewModelRequestException(message=msg)
+
+    @staticmethod
+    def create_token(email, user_id: str):
+        payload = {
+            'userId': user_id,
+            'email': email,
+        }
+        token = jwt.encode(payload, algorithm='HS256')
+        return token
+
+    @staticmethod
+    async def verify_token(token: str) -> bool:
+        try:
+            payload = jwt.decode(token, algorithm='HS256')
+            email = payload['email']
+            if not await AdminModel.find_one(AdminModel.email == email):
+                return False
+            return True
+        except jwt.ExpiredSignatureError:
+            return False

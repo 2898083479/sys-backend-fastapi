@@ -1,4 +1,5 @@
 from pymongo import HASHED
+
 from app.models import BaseDBModel
 
 __all__ = (
@@ -16,6 +17,3 @@ class UserModel(BaseDBModel):
         indexes = [
             [('_id', HASHED)]
         ]
-
-
-
