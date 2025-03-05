@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     MONGODB_DB: str
     MONGODB_PORT: int
     MONGODB_AUTHENTICATION_SOURCE: str
+
+    ENCRYPT_KEY: str
     
     class Config:
         env_file = f'{pathlib.Path(__file__).resolve().parent.parent.parent}/.env'

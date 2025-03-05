@@ -1,9 +1,4 @@
 from fastapi import HTTPException, Request
-
-__all__ = (
-    'create_app',
-)
-
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from starlette.responses import JSONResponse
@@ -14,6 +9,9 @@ from app.response import ResponseModel, ResponseStatusCodeEnum, get_response_mes
 from motor.motor_asyncio import AsyncIOMotorClient # type: ignore
 from beanie import init_beanie
 
+__all__ = (
+    'create_app',
+)
 
 def create_app():
     app = FastAPI(lifespan=lifespan)
