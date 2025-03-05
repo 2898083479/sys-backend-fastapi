@@ -2,7 +2,7 @@ import abc
 
 from fastapi import Request
 from jenkins import TimeoutException
-from config.setting import get_setting
+from app.config.setting import get_settings
 
 from app.response import ResponseModel, ResponseStatusCodeEnum, get_response_message
 
@@ -40,7 +40,7 @@ class BaseViewModel:
         except ViewModelRequestException:
             pass
         return ResponseModel(
-            category=get_setting().APP_NO,
+            category=get_settings().APP_NO,
             code=self.code,
             message=self.message,
             data=self.data
@@ -55,7 +55,7 @@ class BaseViewModel:
         except ViewModelRequestException:
             pass
         return ResponseModel(
-            category=get_setting().APP_NO,
+            category=get_settings().APP_NO,
             code=self.code,
             message=self.message,
             data=self.data

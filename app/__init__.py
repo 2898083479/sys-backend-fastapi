@@ -8,7 +8,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from starlette.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
+from app.config.setting import get_settings
+from app.models import BaseDBModel
 from app.response import ResponseModel, ResponseStatusCodeEnum, get_response_message
+from motor.motor_asyncio import AsyncIOMotorClient # type: ignore
+from beanie import init_beanie
 
 
 def create_app():
@@ -31,8 +35,11 @@ async def lifespan(app: FastAPI):
     result = await register_routers(app)
     if not result:
         print('Start Failed')
+    mongo_client = await initialize_mongodb_client()
+    await init_db(mongo_client)
     print('Start Success')
     yield
+    mongo_client.close()
     print('Shutdown Core Application')
 
 
@@ -42,6 +49,40 @@ async def register_routers(app: FastAPI):
     # app.include_router()
     app.include_router(account_router)
     return True
+
+
+async def initialize_mongodb_client():
+    return AsyncIOMotorClient(
+        host=get_settings().MONGODB_URI,
+        port=get_settings().MONGODB_PORT,
+        username=get_settings().MONGODB_USERNAME,
+        password=get_settings().MONGODB_PASSWORD,
+    )
+
+
+async def init_db(mongo_client: AsyncIOMotorClient):
+    # 導入模型
+    import app.models.account.admin as admin_model
+    import app.models.account.user as user_model
+    import app.models.account.store as store_model
+    await init_beanie(
+        database=getattr(mongo_client, get_settings().MONGODB_DB),
+        document_models=[
+            # *load_models_class
+            *load_models_class(admin_model),
+            *load_models_class(user_model),
+            *load_models_class(store_model),
+        ]
+    )
+
+
+def load_models_class(module):
+    class_list = []
+    for model in module.__all__:
+        module_class = getattr(module, model)
+        if module_class and issubclass(module_class, BaseDBModel):
+            class_list.append(module_class)
+    return class_list
 
 
 def register_http_exception_handlers(app: FastAPI):

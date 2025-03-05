@@ -1,12 +1,13 @@
 from functools import lru_cache
-
+import pathlib
+from pydantic.v1 import BaseSettings
 __all__ = (
-    'Setting',
-    'get_setting',
+    'Settings',
+    'get_settings',
 )
 
 
-class Setting:
+class Settings(BaseSettings):
     APP_NAME: str
     APP_NO: str
     APP_ENV: str
@@ -15,10 +16,14 @@ class Setting:
     MONGODB_PASSWORD: str
     MONGODB_URI: str
     MONGODB_DB: str
-    MONGODB_PORT: str
+    MONGODB_PORT: int
+    MONGODB_AUTHENTICATION_SOURCE: str
+    
+    class Config:
+        env_file = f'{pathlib.Path(__file__).resolve().parent.parent.parent}/.env'
     
     
 @lru_cache()
-def get_setting() -> Setting:
-    return Setting()
+def get_settings() -> Settings:
+    return Settings()
     
