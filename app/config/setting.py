@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     MONGODB_PORT: int
     MONGODB_AUTHENTICATION_SOURCE: str
 
+    COOKIE_KEY: str
     ENCRYPT_KEY: str
 
     class Config:

@@ -1,12 +1,13 @@
 from app.config.setting import get_settings
 from app.forms.account.common import LoginForm, RegisterForm
-from app.libs.custom import decrypt
+from app.libs.custom import decrypt, encrypt
 from app.models.account.admin import AdminModel
 from app.response.common import LoginSuccessResponse
 from app.view_models import BaseViewModel
 
 __all__ = (
     'AdminLoginViewModel',
+    'AdminRegisterViewModel',
 )
 
 
@@ -21,7 +22,6 @@ class AdminLoginViewModel(BaseViewModel):
     async def login(self):
         if not (user := await AdminModel.find_one(AdminModel.email == self.form_data.email)):
             self.operating_failed('the email was not been registered')
-
         password = decrypt(user.password, get_settings().ENCRYPT_KEY)
         if password != self.form_data.password:
             self.operating_failed('password error')
@@ -43,4 +43,13 @@ class AdminRegisterViewModel(BaseViewModel):
         await self.register()
 
     async def register(self):
-        pass
+        if self.form_data.email and await AdminModel.find_one(AdminModel.email == self.form_data.email):
+            self.operating_failed('the email was been registered')
+        encrypt_password = encrypt(self.form_data.password, get_settings().ENCRYPT_KEY)
+        account = AdminModel(
+            name=self.form_data.name,
+            email=self.form_data.email,
+            password=encrypt_password
+        )
+        await AdminModel.insert(account)
+        self.operating_successfully('register successfully')

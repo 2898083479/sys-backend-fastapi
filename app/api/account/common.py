@@ -1,11 +1,11 @@
-from fastapi import FastAPI
+from fastapi import APIRouter
 
-from app.forms.account.common import LoginForm
+from app.forms.account.common import *
 from app.response import ResponseModel
 from app.response.common import LoginSuccessResponse
-from app.view_models.account.common import AdminLoginViewModel
+from app.view_models.account.common import *
 
-router = FastAPI(
+router = APIRouter(
     prefix='/common', tags=['Account common API'], dependencies=[]
 )
 
@@ -22,12 +22,13 @@ async def login(
         return response
 
 
-@router.get(
+@router.post(
     '/register',
     response_model=ResponseModel[str],
     description='User register'
 )
 async def register(
-
+    form_data: RegisterForm
 ):
-    pass
+    async with AdminRegisterViewModel(form_data) as response:
+        return response

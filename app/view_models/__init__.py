@@ -1,11 +1,11 @@
 import abc
+import time
 
 import jwt
 from fastapi import Request
 from jenkins import TimeoutException
-from app.config.setting import get_settings
-from app.models.account.admin import AdminModel
 
+from app.config.setting import get_settings
 from app.response import ResponseModel, ResponseStatusCodeEnum, get_response_message
 
 __all__ = (
@@ -106,22 +106,30 @@ class BaseViewModel:
         self.data = msg
         raise ViewModelRequestException(message=msg)
 
+    def unauthorized(self, data: str | dict | list):
+        self.code = ResponseStatusCodeEnum.UNAUTHORIZED.value
+        self.message = get_response_message(ResponseStatusCodeEnum.UNAUTHORIZED)
+        self.data = data
+        raise ViewModelRequestException(message=data)
+
     @staticmethod
     def create_token(email, user_id: str):
         payload = {
             'userId': user_id,
             'email': email,
+            'exp': int(time.time()) + 60 * 60 * 24
         }
-        token = jwt.encode(payload, algorithm='HS256')
+        cookie_key = get_settings().COOKIE_KEY
+        token = jwt.encode(payload, cookie_key, algorithm='HS256')
         return token
 
-    @staticmethod
-    async def verify_token(token: str) -> bool:
+    async def verify_token(self, token: str):
         try:
-            payload = jwt.decode(token, algorithm='HS256')
-            email = payload['email']
-            if not await AdminModel.find_one(AdminModel.email == email):
-                return False
-            return True
+            result = jwt.decode(token, get_settings().COOKIE_KEY, algorithm='HS256')
+            if not result:
+                self.unauthorized('please pass the token in the authorization header to proceed')
+            if not result.get('userId'):
+                self.unauthorized('invalid token')
+            return result
         except jwt.ExpiredSignatureError:
-            return False
+            self.unauthorized('token expired, Please login again to continue')
