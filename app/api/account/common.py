@@ -22,6 +22,9 @@ async def login(
         return response
 
 
+"""
+    register: administrator not need registration
+"""
 @router.post(
     '/register',
     response_model=ResponseModel[str],
@@ -30,5 +33,5 @@ async def login(
 async def register(
     form_data: RegisterForm
 ):
-    async with AdminRegisterViewModel(form_data) as response:
+    async with UserRegisterViewModel(form_data) as response:
         return response

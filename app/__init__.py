@@ -62,7 +62,8 @@ async def init_db(mongo_client: AsyncIOMotorClient):
     # 導入模型
     import app.models.account.admin as admin_model
     import app.models.account.user as user_model
-    import app.models.account.store as store_model
+    import app.models.store as store_model
+    import app.models.account.merchant as merchant_model
     await init_beanie(
         database=getattr(mongo_client, get_settings().MONGODB_DB),
         document_models=[
@@ -70,6 +71,7 @@ async def init_db(mongo_client: AsyncIOMotorClient):
             *load_models_class(admin_model),
             *load_models_class(user_model),
             *load_models_class(store_model),
+            *load_models_class(merchant_model),
         ]
     )
 

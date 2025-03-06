@@ -1,19 +1,16 @@
 from typing import Optional
 
-from pydantic import Field, EmailStr
+from pydantic import Field
 from pymongo import HASHED
 
-from app.models import BaseDBModel
+from app.models import BaseUserModel
 
 __all__ = (
     'AdminModel',
 )
 
 
-class AdminModel(BaseDBModel):
-    name: str = Field(..., description='Admin Name')
-    email: EmailStr = Field(..., description='Admin Email')
-    password: str = Field(..., description='Admin Password')
+class AdminModel(BaseUserModel):
     deleted: Optional[bool] = Field(False, description='')
 
     class Settings:

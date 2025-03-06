@@ -3,11 +3,12 @@ from typing import Any
 
 from beanie import Document, after_event, Update
 from beanie.odm.operators.update.general import Set as _Set
-from pydantic import Field
+from pydantic import Field, EmailStr
 
 __all__ = (
-    'Set'
-    'BaseDBModel'
+    'Set',
+    'BaseDBModel',
+    'BaseUserModel'
 )
 
 
@@ -40,3 +41,10 @@ class BaseDBModel(Document):
     async def get_encrypted_fields(self, encrypted_field: str) -> Any | None:
         if not getattr(self, encrypted_field):
             return None
+
+
+class BaseUserModel(BaseDBModel):
+    name: str = Field(..., description='user name')
+    email: EmailStr = Field(..., description='user email')
+    password: str = Field(..., description='user password')
+    identity: int = Field(..., description='user identity: 0-admin, 1-common_user')
