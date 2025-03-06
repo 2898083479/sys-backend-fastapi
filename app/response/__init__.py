@@ -1,7 +1,8 @@
-from typing import Generic, TypeVar
-from pydantic import Field, BaseModel
 from enum import Enum
 from functools import lru_cache
+from typing import Generic, TypeVar
+
+from pydantic import Field, BaseModel
 
 T = TypeVar('T')
 

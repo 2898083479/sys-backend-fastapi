@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Request, Query
+
 from app.forms.account.admin import CreateAdminForm, UpdateAdminForm
 from app.response import ResponseModel
 from app.response.account import AdminInfoResponse
 from app.view_models.account.admin import (
-        GetAdminInfoViewModel, GetAdminInfoByIdViewModel, CreateAdminViewModel,
-        UpdateAdminViewModel, DeleteAdminViewModel, QueryAdminListViewModel
+    GetAdminInfoViewModel, GetAdminInfoByIdViewModel, CreateAdminViewModel,
+    UpdateAdminViewModel, DeleteAdminViewModel, QueryAdminListViewModel
 )
 
 router = APIRouter(

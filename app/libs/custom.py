@@ -1,4 +1,5 @@
 import json
+
 from cryptography.fernet import Fernet
 from rich.console import Console
 

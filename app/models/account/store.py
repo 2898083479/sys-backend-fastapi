@@ -1,5 +1,6 @@
 from pydantic import Field
 from pymongo import HASHED
+
 from app.models import BaseDBModel
 
 __all__ = (
