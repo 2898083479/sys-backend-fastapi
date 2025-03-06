@@ -47,7 +47,6 @@ class BaseViewModel:
             message=self.message,
             data=self.data
         )
-        # return self
 
     async def __aenter__(self):
         try:
@@ -117,7 +116,7 @@ class BaseViewModel:
         payload = {
             'userId': user_id,
             'email': email,
-            'exp': int(time.time()) + 60 * 60 * 24
+            'exp': int(time.time()) + 60
         }
         cookie_key = get_settings().COOKIE_KEY
         token = jwt.encode(payload, cookie_key, algorithm='HS256')
@@ -125,7 +124,7 @@ class BaseViewModel:
 
     async def verify_token(self, token: str):
         try:
-            result = jwt.decode(token, get_settings().COOKIE_KEY, algorithm='HS256')
+            result = jwt.decode(token, get_settings().COOKIE_KEY, algorithms=['HS256']) or {}
             if not result:
                 self.unauthorized('please pass the token in the authorization header to proceed')
             if not result.get('userId'):

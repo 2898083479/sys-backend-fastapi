@@ -1,15 +1,14 @@
+from pydantic import Field
 from pymongo import HASHED
 
-from app.models import BaseDBModel
+from app.models import BaseUserModel
 
 __all__ = (
     'UserModel',
 )
 
 
-class UserModel(BaseDBModel):
-    name: str
-    email: str
+class UserModel(BaseUserModel):
 
     class Settings:
         name = 'users'
