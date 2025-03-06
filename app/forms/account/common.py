@@ -13,5 +13,6 @@ class LoginForm(BaseModel):
 
 
 class RegisterForm(BaseModel):
+    name: str = Body(..., embed=True, description='register name')
     email: EmailStr = Body(..., embed=True, description='register email')
     password: str = Body(..., embed=True, description='register password')
