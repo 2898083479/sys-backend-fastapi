@@ -34,3 +34,15 @@ async def update_merchant_account(
 ):
     async with UpdateMerchantViewModel(form_data, request) as response:
         return response
+
+
+@router.get(
+    '/list',
+    response_model=ResponseModel[list[MerchantInfoResponse] | str],
+    description='Query merchant list'
+)
+async def query_merchant_list(
+        search: str = Query(..., description='search key'),
+        request: Request = None
+):
+    pass

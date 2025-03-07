@@ -1,3 +1,5 @@
+from beanie.odm.operators.find.evaluation import RegEx
+from beanie.odm.operators.find.logical import Or
 from fastapi import Request
 
 from app.forms.account.merchant import UpdateMerchantForm
@@ -56,3 +58,35 @@ class UpdateMerchantViewModel(BaseViewModel):
             status=self.form_data.status,
         )
         self.operating_successfully('merchant updated successfully')
+
+
+class QueryMerchantListViewModel(BaseViewModel):
+    def __init__(self, search: str, request: Request):
+        super().__init__(request=request)
+        self.search = search
+
+    async def before(self):
+        await self.query_merchant_list()
+
+    async def query_merchant_list(self):
+        await self.verify_token(
+            self.request.headers.get('Authorization').replace('Bearer ', '')
+        )
+        condition = []
+        if self.search:
+            condition.append(Or(
+                RegEx(MerchantModel.name, self.search),
+                RegEx(MerchantModel.email, self.search)
+            ))
+        merchant_list = await MerchantModel.find(**condition).to_list()
+        res_list = [
+            MerchantInfoResponse(
+                merchantId=merchant.sid,
+                name=merchant.name,
+                email=merchant.email,
+                status=merchant.status,
+                createdAt=merchant.createAt,
+                updatedAt=merchant.updateAt,
+            ) for merchant in merchant_list
+        ]
+        self.operating_successfully(res_list)
