@@ -49,12 +49,13 @@ class UserRegisterViewModel(BaseViewModel):
         await self.register()
 
     async def register(self):
-        if self.form_data.email and not await MerchantModel.find_one(MerchantModel.email == self.form_data.email):
+        if self.form_data.email and await MerchantModel.find_one(MerchantModel.email == self.form_data.email):
             self.operating_failed('email already exists')
         merchant = MerchantModel(
             name=self.form_data.name,
             email=self.form_data.email,
-            password=encrypt(self.form_data.password, get_settings().ENCRYPT_KEY)
+            password=encrypt(self.form_data.password, get_settings().ENCRYPT_KEY),
+            identity=self.form_data.identity
         )
         await MerchantModel.insert(merchant)
         self.operating_successfully('register successfully')
