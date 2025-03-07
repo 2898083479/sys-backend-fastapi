@@ -5,6 +5,7 @@ from app.models.account.admin import AdminModel
 from app.models.account.merchant import MerchantModel
 from app.response.common import LoginSuccessResponse
 from app.view_models import BaseViewModel
+from fastapi import Request
 
 __all__ = (
     'AdminLoginViewModel',
@@ -13,8 +14,8 @@ __all__ = (
 
 
 class AdminLoginViewModel(BaseViewModel):
-    def __init__(self, form_data: LoginForm):
-        super().__init__()
+    def __init__(self, form_data: LoginForm, request: Request):
+        super().__init__(request=request)
         self.form_data = form_data
 
     async def before(self):

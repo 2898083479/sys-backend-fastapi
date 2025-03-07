@@ -1,9 +1,12 @@
+from typing import Optional
+
 from fastapi import APIRouter, Query, Request
 
 from app.forms.account.merchant import UpdateMerchantForm
 from app.response import ResponseModel
 from app.response.merchant import MerchantInfoResponse
-from app.view_models.account.merchant import QueryMerchantByIdViewMode, UpdateMerchantViewModel
+from app.view_models.account.merchant import QueryMerchantByIdViewMode, UpdateMerchantViewModel, \
+    QueryMerchantListViewModel
 
 router = APIRouter(
     prefix='/merchant', tags=['Merchant Account API'], dependencies=[]
@@ -42,7 +45,8 @@ async def update_merchant_account(
     description='Query merchant list'
 )
 async def query_merchant_list(
-        search: str = Query(..., description='search key'),
+        search: Optional[str] = Query('', description='search key'),
         request: Request = None
 ):
-    pass
+    async with QueryMerchantListViewModel(search, request) as response:
+        return response

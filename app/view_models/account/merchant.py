@@ -10,6 +10,7 @@ from app.view_models import BaseViewModel
 __all__ = (
     'QueryMerchantByIdViewMode',
     'UpdateMerchantViewModel',
+    'QueryMerchantListViewModel',
 )
 
 
@@ -23,9 +24,6 @@ class QueryMerchantByIdViewMode(BaseViewModel):
         await self.get_merchant_by_id()
 
     async def get_merchant_by_id(self):
-        token_data = self.request.headers.get('Authorization')
-        token = token_data.replace('Bearer ', '')
-        await self.verify_token(token)
         if not (merchant := await MerchantModel.get(self.merchant_id)):
             self.operating_failed('merchant not found')
         self.operating_successfully(MerchantInfoResponse(
@@ -47,9 +45,6 @@ class UpdateMerchantViewModel(BaseViewModel):
         await self.update_merchant()
 
     async def update_merchant(self):
-        token = self.request.headers.get('Authorization')
-        token = token.replace('Bearer ', '')
-        await self.verify_token(token)
         if not (merchant := await MerchantModel.get(self.form_data.merchantId)):
             self.not_found('merchant not found')
         await merchant.update_fields(
@@ -69,16 +64,13 @@ class QueryMerchantListViewModel(BaseViewModel):
         await self.query_merchant_list()
 
     async def query_merchant_list(self):
-        await self.verify_token(
-            self.request.headers.get('Authorization').replace('Bearer ', '')
-        )
         condition = []
         if self.search:
             condition.append(Or(
                 RegEx(MerchantModel.name, self.search),
                 RegEx(MerchantModel.email, self.search)
             ))
-        merchant_list = await MerchantModel.find(**condition).to_list()
+        merchant_list = await MerchantModel.find(*condition).to_list()
         res_list = [
             MerchantInfoResponse(
                 merchantId=merchant.sid,
