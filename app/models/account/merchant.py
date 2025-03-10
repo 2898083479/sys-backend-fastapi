@@ -16,6 +16,7 @@ class MerchantAffiliation(BaseModel):
 
 
 class MerchantModel(BaseUserModel):
+    deleted: Optional[bool] = Field(False, description='is deleted')
     status: Optional[str] = Field('Pending', description='merchant status')
     affiliation: Optional[MerchantAffiliation] = Field(None, description='merchant affiliation: storeId')
 

@@ -13,6 +13,7 @@ __all__ = (
     'UpdateMerchantViewModel',
     'QueryMerchantListViewModel',
     'ReviewMerchantViewModel',
+    'DeleteMerchantViewModel',
 )
 
 
@@ -66,13 +67,7 @@ class QueryMerchantListViewModel(BaseViewModel):
         await self.query_merchant_list()
 
     async def query_merchant_list(self):
-        condition = []
-        if self.search:
-            condition.append(Or(
-                RegEx(MerchantModel.name, self.search),
-                RegEx(MerchantModel.email, self.search)
-            ))
-        merchant_list = await MerchantModel.find(*condition).to_list()
+        merchant_list = await MerchantModel.find(*self.generate_query_conditions()).to_list()
         res_list = [
             MerchantInfoResponse(
                 merchantId=merchant.sid,
@@ -85,10 +80,20 @@ class QueryMerchantListViewModel(BaseViewModel):
         ]
         self.operating_successfully(res_list)
 
+    def generate_query_conditions(self):
+        conditions = []
+        if self.search:
+            conditions.append(Or(
+                RegEx(MerchantModel.name, self.search),
+                RegEx(MerchantModel.email, self.search)
+            ))
+        conditions.append(MerchantModel.deleted == False)
+        return conditions
+
 
 class ReviewMerchantViewModel(BaseViewModel):
     def __init__(self, merchant_id: str, request: Request):
-        super().__init__()
+        super().__init__(request=request)
         self.merchant_id = merchant_id
 
     async def before(self):
@@ -101,3 +106,20 @@ class ReviewMerchantViewModel(BaseViewModel):
             status=MerchantStatusEnum.Approved
         )
         self.operating_successfully('merchant reviewed successfully')
+
+
+class DeleteMerchantViewModel(BaseViewModel):
+    def __init__(self, merchant_id: str, request: Request):
+        super().__init__(request=request)
+        self.merchant_id = merchant_id
+
+    async def before(self):
+        await self.delete_merchant()
+
+    async def delete_merchant(self):
+        if not (merchant := await MerchantModel.get(self.merchant_id)):
+            self.not_found('merchant not found')
+        await merchant.update_fields(
+            deleted=True
+        )
+        self.operating_successfully('merchant deleted successfully')

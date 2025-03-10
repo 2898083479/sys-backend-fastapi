@@ -6,7 +6,7 @@ from app.forms.account.merchant import UpdateMerchantForm
 from app.response import ResponseModel
 from app.response.merchant import MerchantInfoResponse
 from app.view_models.account.merchant import QueryMerchantByIdViewMode, UpdateMerchantViewModel, \
-    QueryMerchantListViewModel, ReviewMerchantViewModel
+    QueryMerchantListViewModel, ReviewMerchantViewModel, DeleteMerchantViewModel
 
 router = APIRouter(
     prefix='/merchant', tags=['Merchant Account API'], dependencies=[]
@@ -64,3 +64,15 @@ async def review_merchant(
     async with ReviewMerchantViewModel(merchant_id, request) as response:
         return response
 
+
+@router.delete(
+    '',
+    response_model=ResponseModel[str],
+    description='Delete merchant account'
+)
+async def delete_merchant_account(
+        merchant_id: str = Query(..., alias='merchantId', description='merchant id'),
+        request: Request = None
+):
+    async with DeleteMerchantViewModel(merchant_id, request) as response:
+        return response
