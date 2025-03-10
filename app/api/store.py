@@ -1,9 +1,14 @@
+from typing import Optional
+
 from fastapi import APIRouter, Query, Request
 
-from app.forms.store import CreateStoreForm, AddMerchantToStoreForm
+from app.forms.store import CreateStoreForm, AddMerchantToStoreForm, UpdateStoreForm
 from app.response import ResponseModel
 from app.response.store import StoreInfoResponse
-from app.view_models.store import QueryStoreInfoViewModel, CreateStoreViewModel, AddMerchantToStoreViewModel
+from app.view_models.store import (
+    QueryStoreInfoViewModel, CreateStoreViewModel, AddMerchantToStoreViewModel,
+    QueryStoreListViewModel, ReviewStoreViewModel
+)
 
 router = APIRouter(
     prefix='/store', tags=['Store API'], dependencies=[]
@@ -47,3 +52,41 @@ async def add_merchant_to_store(
 ):
     async with AddMerchantToStoreViewModel(form_data, request) as response:
         return response
+
+
+@router.get(
+    '/list',
+    response_model=ResponseModel[list[StoreInfoResponse] | str],
+    description='Query Store List'
+)
+async def query_store_list(
+        search: Optional[str] = Query('', description='Search key'),
+        request: Request = None,
+):
+    async with QueryStoreListViewModel(search, request) as response:
+        return response
+
+
+@router.put(
+    '/review',
+    response_model=ResponseModel[str],
+    description='Review Store'
+)
+async def review_store(
+        store_id: str = Query(..., alias='storeId', description='Store id'),
+        request: Request = None,
+):
+    async with ReviewStoreViewModel(store_id, request) as response:
+        return response
+
+
+@router.put(
+    '',
+    response_model=ResponseModel[str],
+    description='Update store'
+)
+async def update_store(
+        form_data: UpdateStoreForm,
+        request: Request = None
+):
+    pass

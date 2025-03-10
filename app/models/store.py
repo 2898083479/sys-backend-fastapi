@@ -19,7 +19,8 @@ class StoreAffiliation(BaseModel):
 class StoreModel(BaseDBModel):
     name: str = Field(..., description='Store name')
     email: EmailStr = Field(..., description='Store email')
-    status: str = Field(..., description='Store status')
+    deleted: Optional[bool] = Field(False, description='is deleted')
+    status: Optional[str] = Field('待審核', description='Store status')
     description: str = Field(..., description='Store description')
     affiliation: Optional[StoreAffiliation] = Field(None, description='Store Affiliation: merchant_list, good_list')
 
@@ -32,8 +33,10 @@ class StoreModel(BaseDBModel):
 
     @property
     def merchant_count(self):
-        return len(self.affiliation.merchant_list)
+        merchant_count = len(self.affiliation.merchantList)
+        return merchant_count if merchant_count else 0
 
     @property
     def good_count(self):
-        return len(self.affiliation.good_list)
+        good_count = len(self.affiliation.goodList)
+        return good_count if good_count else 0
