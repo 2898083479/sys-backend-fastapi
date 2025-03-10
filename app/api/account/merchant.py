@@ -6,7 +6,7 @@ from app.forms.account.merchant import UpdateMerchantForm
 from app.response import ResponseModel
 from app.response.merchant import MerchantInfoResponse
 from app.view_models.account.merchant import QueryMerchantByIdViewMode, UpdateMerchantViewModel, \
-    QueryMerchantListViewModel
+    QueryMerchantListViewModel, ReviewMerchantViewModel
 
 router = APIRouter(
     prefix='/merchant', tags=['Merchant Account API'], dependencies=[]
@@ -50,3 +50,17 @@ async def query_merchant_list(
 ):
     async with QueryMerchantListViewModel(search, request) as response:
         return response
+
+
+@router.put(
+    '/review',
+    response_model=ResponseModel[str],
+    description='Review merchant'
+)
+async def review_merchant(
+        merchant_id: str = Query(..., alias='merchantId', description='merchant id'),
+        request: Request = None
+):
+    async with ReviewMerchantViewModel(merchant_id, request) as response:
+        return response
+

@@ -50,10 +50,10 @@ class BaseViewModel:
 
     async def __aenter__(self):
         try:
-            if self.need_auth and self.request.url.path not in [
-                '/account/common/login', '/account/common/register'
-            ]:
-                await self.verify_token(self.request.headers.get('Authorization').replace('Bearer ', ''))
+            # if self.need_auth and self.request.url.path not in [
+            #     '/account/common/login', '/account/common/register'
+            # ]:
+            #     await self.verify_token(self.request.headers.get('Authorization').replace('Bearer ', ''))
             await self.before()
         except TimeoutException as e:
             self.request_timeout(str(e))

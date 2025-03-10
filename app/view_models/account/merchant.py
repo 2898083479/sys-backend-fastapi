@@ -3,6 +3,7 @@ from beanie.odm.operators.find.logical import Or
 from fastapi import Request
 
 from app.forms.account.merchant import UpdateMerchantForm
+from app.models.account import MerchantStatusEnum
 from app.models.account.merchant import MerchantModel
 from app.response.merchant import MerchantInfoResponse
 from app.view_models import BaseViewModel
@@ -11,6 +12,7 @@ __all__ = (
     'QueryMerchantByIdViewMode',
     'UpdateMerchantViewModel',
     'QueryMerchantListViewModel',
+    'ReviewMerchantViewModel',
 )
 
 
@@ -74,11 +76,28 @@ class QueryMerchantListViewModel(BaseViewModel):
         res_list = [
             MerchantInfoResponse(
                 merchantId=merchant.sid,
+                storeId=merchant.affiliation.storeId,
                 name=merchant.name,
                 email=merchant.email,
                 status=merchant.status,
                 createdAt=merchant.createAt,
-                updatedAt=merchant.updateAt,
             ) for merchant in merchant_list
         ]
         self.operating_successfully(res_list)
+
+
+class ReviewMerchantViewModel(BaseViewModel):
+    def __init__(self, merchant_id: str, request: Request):
+        super().__init__()
+        self.merchant_id = merchant_id
+
+    async def before(self):
+        await self.review_merchant()
+
+    async def review_merchant(self):
+        if not (merchant := await MerchantModel.get(self.merchant_id)):
+            self.not_found('Merchant not found')
+        await merchant.update_fields(
+            status=MerchantStatusEnum.Approved
+        )
+        self.operating_successfully('merchant reviewed successfully')
