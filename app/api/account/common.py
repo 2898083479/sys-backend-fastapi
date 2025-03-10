@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 from app.forms.account.common import *
 from app.response import ResponseModel
@@ -16,9 +16,10 @@ router = APIRouter(
     description='User login'
 )
 async def login(
-        form_data: LoginForm
+        form_data: LoginForm,
+        request: Request
 ):
-    async with AdminLoginViewModel(form_data) as response:
+    async with AdminLoginViewModel(form_data, request) as response:
         return response
 
 

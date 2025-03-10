@@ -50,6 +50,10 @@ class BaseViewModel:
 
     async def __aenter__(self):
         try:
+            # if self.need_auth and self.request.url.path not in [
+            #     '/account/common/login', '/account/common/register'
+            # ]:
+            #     await self.verify_token(self.request.headers.get('Authorization').replace('Bearer ', ''))
             await self.before()
         except TimeoutException as e:
             self.request_timeout(str(e))
@@ -116,7 +120,7 @@ class BaseViewModel:
         payload = {
             'userId': user_id,
             'email': email,
-            'exp': int(time.time()) + 60
+            'exp': int(time.time()) + 60 * 60 * 24
         }
         cookie_key = get_settings().COOKIE_KEY
         token = jwt.encode(payload, cookie_key, algorithm='HS256')

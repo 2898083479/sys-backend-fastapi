@@ -3,6 +3,8 @@ __all__ = (
     'StoreModel'
 )
 
+from typing import Optional
+
 from pydantic import Field, EmailStr, BaseModel
 from pymongo import HASHED
 
@@ -10,8 +12,8 @@ from app.models import BaseDBModel
 
 
 class StoreAffiliation(BaseModel):
-    merchant_list: list[str] = Field(..., description='Merchant list')
-    good_list: list[str] = Field(..., description='Good list')
+    merchantList: Optional[set[str]] = Field(default_factory=lambda: set, description='Merchant list')
+    goodList: Optional[set[str]] = Field(default_factory=lambda: set, description='Good list')
 
 
 class StoreModel(BaseDBModel):
@@ -19,7 +21,7 @@ class StoreModel(BaseDBModel):
     email: EmailStr = Field(..., description='Store email')
     status: str = Field(..., description='Store status')
     description: str = Field(..., description='Store description')
-    affiliation: StoreAffiliation = Field(..., description='Store Affiliation: merchant_list, good_list')
+    affiliation: Optional[StoreAffiliation] = Field(None, description='Store Affiliation: merchant_list, good_list')
 
     class Settings:
         name = 'stores'
