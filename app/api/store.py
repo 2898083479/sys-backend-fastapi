@@ -7,7 +7,7 @@ from app.response import ResponseModel
 from app.response.store import StoreInfoResponse
 from app.view_models.store import (
     QueryStoreInfoViewModel, CreateStoreViewModel, AddMerchantToStoreViewModel,
-    QueryStoreListViewModel, ReviewStoreViewModel
+    QueryStoreListViewModel, ReviewStoreViewModel, UpdateStoreViewModel, DeleteStoreViewModel
 )
 
 router = APIRouter(
@@ -89,4 +89,18 @@ async def update_store(
         form_data: UpdateStoreForm,
         request: Request = None
 ):
-    pass
+    async with UpdateStoreViewModel(form_data, request) as response:
+        return response
+
+
+@router.delete(
+    '',
+    response_model=ResponseModel[str],
+    description='Delete store'
+)
+async def delete_store(
+        store_id: str = Query(..., alias='storeId', description='Delete store'),
+        request: Request = None
+):
+    async with DeleteStoreViewModel(store_id, request) as response:
+        return response

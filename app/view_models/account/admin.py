@@ -60,7 +60,7 @@ class CreateAdminViewModel(BaseViewModel):
         await self.create_admin()
 
     async def create_admin(self):
-        if self.form_data.email and not await AdminModel.get(self.form_data.email):
+        if self.form_data.email and not await AdminModel.find_one(AdminModel.email == self.form_data.email):
             await AdminModel.insert_one(AdminModel(
                 name=self.form_data.name,
                 email=self.form_data.email

@@ -31,6 +31,7 @@ class QueryMerchantByIdViewMode(BaseViewModel):
             self.operating_failed('merchant not found')
         self.operating_successfully(MerchantInfoResponse(
             merchantId=merchant.sid,
+            storeId=merchant.affiliation.storeId,
             name=merchant.name,
             email=merchant.email,
             status=merchant.status,

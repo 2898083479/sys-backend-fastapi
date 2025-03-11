@@ -33,10 +33,14 @@ class StoreModel(BaseDBModel):
 
     @property
     def merchant_count(self):
-        merchant_count = len(self.affiliation.merchantList)
-        return merchant_count if merchant_count else 0
+        if self.affiliation is not None:
+            merchant_count = len(self.affiliation.merchantList)
+            return merchant_count if merchant_count else 0
+        return 0
 
     @property
     def good_count(self):
-        good_count = len(self.affiliation.goodList)
-        return good_count if good_count else 0
+        if self.affiliation is not None:
+            good_count = len(self.affiliation.goodList)
+            return good_count if good_count else 0
+        return 0
