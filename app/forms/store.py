@@ -18,7 +18,7 @@ class CreateStoreForm(BaseModel):
 
 class AddMerchantToStoreForm(BaseModel):
     storeId: str = Body(..., embed=True, description='store id')
-    merchantId: str = Body(..., embed=True, description='merchant id')
+    merchantIds: list[str] = Body(default_factory=lambda: list, embed=True, description='merchant id')
 
 
 class UpdateStoreForm(BaseModel):

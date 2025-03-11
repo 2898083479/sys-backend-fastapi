@@ -57,7 +57,7 @@ class CreateStoreViewModel(BaseViewModel):
             store = StoreModel(
                 name=self.form_data.name,
                 email=self.form_data.email,
-                description=self.form_data.description,
+                description=self.form_data.description
             )
             store = await StoreModel.insert(store)
             await store.update_fields({"$set": {"affiliation.merchantList": []}})
@@ -78,8 +78,9 @@ class AddMerchantToStoreViewModel(BaseViewModel):
         if not (store := await StoreModel.get(self.form_data.storeId)):
             self.not_found('store not found')
         merchant_list = store.affiliation.merchantList
-        merchant_list.add(self.form_data.merchantId)
-        await store.update_fields({"$set": {"affiliation.merchantList": list(merchant_list)}})
+        merchant_ids = self.form_data.merchantIds
+        merchant_list.add(*merchant_ids)
+        await store.update({"$set": {"affiliation.merchantList": merchant_list}})
         self.operating_successfully('merchant added to store successfully')
 
 
