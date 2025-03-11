@@ -14,6 +14,8 @@ __all__ = (
     'AddMerchantToStoreViewModel',
     'QueryStoreListViewModel',
     'ReviewStoreViewModel',
+    'UpdateStoreViewModel',
+    'DeleteStoreViewModel',
 )
 
 
@@ -30,14 +32,14 @@ class QueryStoreInfoViewModel(BaseViewModel):
             self.not_found('store not found')
         self.operating_successfully(
             StoreInfoResponse(
-                id=store.sid,
+                storeId=store.sid,
                 name=store.name,
                 email=store.email,
                 status=store.status,
                 description=store.description,
                 merchant_count=store.merchant_count,
                 good_count=store.good_count,
-                createdAt=store.createdAt,
+                createAt=store.createAt,
             )
         )
 
@@ -57,7 +59,9 @@ class CreateStoreViewModel(BaseViewModel):
                 email=self.form_data.email,
                 description=self.form_data.description,
             )
-            await StoreModel.insert(store)
+            store = await StoreModel.insert(store)
+            await store.update_fields({"$set": {"affiliation.merchantList": []}})
+            await store.update_fields({"$set": {"affiliation.goodList": []}})
             self.operating_successfully('store created successfully')
         self.operating_failed('the store email has been registered')
 
@@ -147,6 +151,24 @@ class UpdateStoreViewModel(BaseViewModel):
         await store.update_fields(
             name=self.form_data.name,
             email=self.form_data.email,
+            status=self.form_data.status,
             description=self.form_data.description,
         )
         self.operating_successfully('store updated successfully')
+
+
+class DeleteStoreViewModel(BaseViewModel):
+    def __init__(self, store_id: str, request: Request):
+        super().__init__(request=request)
+        self.store_id = store_id
+
+    async def before(self):
+        await self.delete_store()
+
+    async def delete_store(self):
+        if not (store := await StoreModel.get(self.store_id)):
+            self.not_found('store not found')
+        await store.update_fields(
+            deleted=True
+        )
+        self.operating_successfully('store deleted successfully')

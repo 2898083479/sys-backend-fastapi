@@ -11,6 +11,8 @@ __all__ = (
 class CreateAdminForm(BaseModel):
     name: str = Body(..., embed=True, description='admin name'),
     email: EmailStr = Body(..., embed=True, description='admin email')
+    identity: Optional[int] = Body(0, embed=True, description='admin identity')
+    password: str = Body(..., embed=True, description='admin password')
 
 
 class UpdateAdminForm(BaseModel):
