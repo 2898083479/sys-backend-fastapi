@@ -1,14 +1,14 @@
-__all__ = (
-    'StoreAffiliation',
-    'StoreModel'
-)
-
 from typing import Optional
 
 from pydantic import Field, EmailStr, BaseModel
 from pymongo import HASHED
 
 from app.models import BaseDBModel
+
+__all__ = (
+    'StoreAffiliation',
+    'StoreModel'
+)
 
 
 class StoreAffiliation(BaseModel):

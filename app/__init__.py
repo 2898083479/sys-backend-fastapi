@@ -45,9 +45,11 @@ async def register_routers(app: FastAPI):
     # 導入所需的路由
     from app.api.account import router as account_router
     from app.api.store import router as store_router
+    from app.api.policy import router as policy_router
     # app.include_router()
     app.include_router(account_router)
     app.include_router(store_router)
+    app.include_router(policy_router)
     return True
 
 
