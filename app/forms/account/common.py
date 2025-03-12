@@ -8,7 +8,6 @@ __all__ = (
 
 
 class LoginForm(BaseModel):
-    identity: int = Body(..., embed=True, description='user identity')
     email: str = Body(..., embed=True, description='login email')
     password: str = Body(..., embed=True, description='login password')
 
@@ -18,3 +17,4 @@ class RegisterForm(BaseModel):
     email: EmailStr = Body(..., embed=True, description='register email')
     password: str = Body(..., embed=True, description='register password')
     identity: int = Body(..., embed=True, description='register identity')
+
