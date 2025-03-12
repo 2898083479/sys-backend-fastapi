@@ -1,8 +1,10 @@
 from fastapi import Request
 
 from app.forms.account.admin import CreateAdminForm, UpdateAdminForm
+from app.forms.account.common import LoginForm
 from app.models.account.admin import AdminModel
 from app.response.account import AdminInfoResponse
+from app.response.common import AdminLoginResponse
 from app.view_models import BaseViewModel
 
 __all__ = (
@@ -12,6 +14,7 @@ __all__ = (
     'UpdateAdminViewModel',
     'DeleteAdminViewModel',
     'QueryAdminListViewModel',
+    'AdminLoginViewModel'
 )
 
 
@@ -121,3 +124,21 @@ class QueryAdminListViewModel(BaseViewModel):
             ) for admin in admin_list
         ]
         self.operating_successfully(res_list)
+
+
+class AdminLoginViewModel(BaseViewModel):
+    def __init__(self, form_data: LoginForm, request: Request):
+        super().__init__(request=request)
+        self.form_data = form_data
+
+    async def before(self):
+        await self.admin_login()
+
+    async def admin_login(self):
+        if not (admin := await AdminModel.find_one(AdminModel.email == self.form_data.email)):
+            self.operating_failed('the account is not registered')
+        self.operating_successfully(
+            AdminLoginResponse(
+                accessToken=self.create_token(admin.email, admin.sid)
+            )
+        )

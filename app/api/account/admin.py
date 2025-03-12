@@ -1,15 +1,17 @@
 from fastapi import APIRouter, Request, Query
 
 from app.forms.account.admin import CreateAdminForm, UpdateAdminForm
+from app.forms.account.common import LoginForm
 from app.response import ResponseModel
 from app.response.account import AdminInfoResponse
+from app.response.common import AdminLoginResponse
 from app.view_models.account.admin import (
     GetAdminInfoViewModel, GetAdminInfoByIdViewModel, CreateAdminViewModel,
-    UpdateAdminViewModel, DeleteAdminViewModel, QueryAdminListViewModel
+    UpdateAdminViewModel, DeleteAdminViewModel, QueryAdminListViewModel, AdminLoginViewModel
 )
 
 router = APIRouter(
-    prefix='/admin', tags=['Admin Account API'], dependencies=[]
+    prefix='/admins', tags=['Admin Account API'], dependencies=[]
 )
 
 
@@ -83,4 +85,17 @@ async def query_admin_list(
         request: Request,
 ):
     async with QueryAdminListViewModel(request) as response:
+        return response
+
+
+@router.post(
+    '/login',
+    response_model=ResponseModel[AdminLoginResponse | str],
+    description='Admin login'
+)
+async def admin_login(
+        form_data: LoginForm,
+        request: Request
+):
+    async with AdminLoginViewModel(form_data, request) as response:
         return response

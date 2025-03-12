@@ -46,10 +46,12 @@ async def register_routers(app: FastAPI):
     from app.api.account import router as account_router
     from app.api.store import router as store_router
     from app.api.policy import router as policy_router
+    from app.api.good import router as good_router
     # app.include_router()
     app.include_router(account_router)
     app.include_router(store_router)
     app.include_router(policy_router)
+    app.include_router(good_router)
     return True
 
 
@@ -68,6 +70,7 @@ async def init_db(mongo_client: AsyncIOMotorClient):
     import app.models.account.user as user_model
     import app.models.store as store_model
     import app.models.account.merchant as merchant_model
+    import app.models.policy as policy_model
     await init_beanie(
         database=getattr(mongo_client, get_settings().MONGODB_DB),
         document_models=[
@@ -76,6 +79,7 @@ async def init_db(mongo_client: AsyncIOMotorClient):
             *load_models_class(user_model),
             *load_models_class(store_model),
             *load_models_class(merchant_model),
+            *load_models_class(policy_model),
         ]
     )
 
