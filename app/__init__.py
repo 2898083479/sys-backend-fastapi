@@ -71,6 +71,7 @@ async def init_db(mongo_client: AsyncIOMotorClient):
     import app.models.store as store_model
     import app.models.account.merchant as merchant_model
     import app.models.policy as policy_model
+    import app.models.good as good_model
     await init_beanie(
         database=getattr(mongo_client, get_settings().MONGODB_DB),
         document_models=[
@@ -80,6 +81,7 @@ async def init_db(mongo_client: AsyncIOMotorClient):
             *load_models_class(store_model),
             *load_models_class(merchant_model),
             *load_models_class(policy_model),
+            *load_models_class(good_model),
         ]
     )
 
