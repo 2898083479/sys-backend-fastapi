@@ -6,7 +6,7 @@ from app.forms.policy import CreatePolicyForm, UpdatePolicyForm
 from app.response import ResponseModel
 from app.response.policy import QueryPolicyResponse
 from app.view_models.policy import CreatePolicyViewModel, QueryOnePolicyViewModel, QueryPolicyListViewModel, \
-    UpdatePolicyViewModel
+    UpdatePolicyViewModel, TogglePolicyViewModel
 
 router = APIRouter(
     prefix='/policy', tags=['Policy API'], dependencies=[]
@@ -45,10 +45,11 @@ async def create_policy(
     description='Query policy list'
 )
 async def query_policy_list(
+        good_id: Optional[str] = Query('', alias='goodId', description='Good id'),
         search: Optional[str] = Query('', description='Search key'),
         request: Request = None,
 ):
-    async with QueryPolicyListViewModel(search, request) as response:
+    async with QueryPolicyListViewModel(good_id, search, request) as response:
         return response
 
 
@@ -62,4 +63,17 @@ async def update_policy(
         request: Request = None
 ):
     async with UpdatePolicyViewModel(form_data, request) as response:
+        return response
+
+
+@router.put(
+    '/toggle',
+    response_model=ResponseModel[str],
+    description='Toggle policy status'
+)
+async def toggle_policy(
+        policy_id: str = Query(..., alias='policyId', description='Policy ID'),
+        request: Request = None
+):
+    async with TogglePolicyViewModel(policy_id, request) as response:
         return response

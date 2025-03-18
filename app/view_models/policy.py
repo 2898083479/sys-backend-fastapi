@@ -3,6 +3,7 @@ __all__ = (
     'CreatePolicyViewModel',
     'QueryPolicyListViewModel',
     'UpdatePolicyViewModel',
+    'TogglePolicyViewModel',
 )
 
 from beanie.odm.operators.find.evaluation import RegEx
@@ -62,9 +63,10 @@ class CreatePolicyViewModel(BaseViewModel):
 
 
 class QueryPolicyListViewModel(BaseViewModel):
-    def __init__(self, search: str, request: Request):
+    def __init__(self, good_id: str, search: str, request: Request):
         super().__init__(request=request)
         self.search = search
+        self.good_id = good_id
 
     async def before(self):
         await self.query_policy_list()
@@ -87,6 +89,10 @@ class QueryPolicyListViewModel(BaseViewModel):
 
     def generate_query_conditions(self):
         conditions = []
+        if self.good_id:
+            conditions.append(
+                PolicyModel.affiliation.goodId == self.good_id
+            )
         if self.search:
             conditions.append(
                 Or(
@@ -115,3 +121,22 @@ class UpdatePolicyViewModel(BaseViewModel):
             endAt=self.form_data.endAt
         )
         self.operating_successfully('Policy updated successfully')
+
+
+class TogglePolicyViewModel(BaseViewModel):
+    def __init__(self, policy_id: str, request: Request):
+        super().__init__(request=request)
+        self.policy_id = policy_id
+
+    async def before(self):
+        await self.toggle_policy()
+
+    async def toggle_policy(self):
+        if not (policy := await PolicyModel.get(self.policy_id)):
+            self.not_found('Policy not found')
+        match policy.status:
+            case '啟用':
+                await policy.update_fields(status='未啟用')
+            case '未啟用':
+                await policy.update_fields(status='啟用')
+        self.operating_successfully('Policy status toggled successfully')
