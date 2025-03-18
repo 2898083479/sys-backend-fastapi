@@ -5,10 +5,14 @@ __all__ = (
 from datetime import datetime
 from typing import Optional
 
-from pydantic import Field
+from pydantic import Field, BaseModel
 from pymongo import HASHED
 
 from app.models import BaseDBModel
+
+
+class PolicyAffiliation(BaseModel):
+    goodId: str = Field(..., description='good id')
 
 
 class PolicyModel(BaseDBModel):
@@ -18,6 +22,7 @@ class PolicyModel(BaseDBModel):
     description: str = Field(..., description='Policy description')
     startAt: datetime = Field(..., description='Start date')
     endAt: datetime = Field(..., description='End date')
+    affiliation: Optional[PolicyAffiliation] = Field(None, description='policy affiliation, from good')
 
     class Settings:
         name = 'policies'
